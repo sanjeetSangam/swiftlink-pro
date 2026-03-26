@@ -38,4 +38,4 @@ jobs:
 
       # --- DOCKER BUILD TEST ---
       - name: Build Docker Stack
-        run: docker-compose build
+        run: docker compose build
