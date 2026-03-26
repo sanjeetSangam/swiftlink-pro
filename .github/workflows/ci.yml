@@ -1,0 +1,39 @@
+name: SwiftLink Pro CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- FRONTEND CHECKS ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Install Web Deps
+        run: cd web && npm install
+      - name: Lint Frontend
+        run: cd web && npm run lint
+
+      # --- BACKEND CHECKS ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install API Deps
+        run: cd api && pip install -r requirements.txt ruff
+      - name: Lint Backend
+        run: cd api && ruff check .
+
+      # --- DOCKER BUILD TEST ---
+      - name: Build Docker Stack
+        run: docker-compose build

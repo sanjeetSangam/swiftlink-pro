@@ -1,0 +1,31 @@
+services:
+  # The Database (MongoDB)
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017" # Allows you to connect from Compass/Studio3T
+    volumes:
+      - mongo-data:/data/db # Keeps your data safe even if you stop Docker
+
+  # The Backend Engine (FastAPI)
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URL=mongodb://db:27017/swiftlink # How the API finds the DB
+    depends_on:
+      - db # START DB FIRST
+
+  # The Frontend (Next.js)
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api:8000 # How the Frontend finds the API
+    depends_on:
+      - api # START API FIRST
+
+volumes:
+  mongo-data: # A persistent storage "room"

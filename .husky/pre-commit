@@ -1,0 +1,3 @@
+echo "🧹 SwiftLink Pro: Running Auto-Format..."
+
+npx lint-staged
