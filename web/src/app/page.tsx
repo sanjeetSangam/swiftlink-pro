@@ -22,7 +22,6 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      console.log("data", data);
       setLinks([data, ...links]);
       setUrl("");
     } catch (err) {
