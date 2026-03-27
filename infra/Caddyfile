@@ -1,0 +1,28 @@
+:80 {
+    # Route API requests to the Backend
+    handle_path /api/* {
+        reverse_proxy api:{$API_PORT}
+    }
+
+    # 2. Next.js Dashboard & Static Assets
+    # We explicitly route ONLY the home page and Next.js internal paths to 'web'
+    handle / {
+        reverse_proxy web:3000
+    }
+    handle /_next/* {
+        reverse_proxy web:3000
+    }
+    handle /favicon.ico {
+        reverse_proxy web:3000
+    }
+
+    # 3. Slugs (Catch-all)
+    # Everything else is treated as a short link slug and sent to 'api'
+    handle /* {
+        reverse_proxy api:8000
+    }
+
+    log {
+        output stdout
+    }
+}

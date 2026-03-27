@@ -1,0 +1,2 @@
+echo "🐳 SwiftLink Pro: Verifying local build before push..."
+docker compose build

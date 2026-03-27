@@ -6,26 +6,56 @@ services:
       - "27017:27017" # Allows you to connect from Compass/Studio3T
     volumes:
       - mongo-data:/data/db # Keeps your data safe even if you stop Docker
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # The Pro Proxy (Caddy) - The ONLY entry point
+  proxy:
+    image: caddy:latest
+    ports:
+      - "${PROXY_PORT}:80" # DYNAMIC PORT FROM .env
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - API_PORT=${API_PORT}
+    depends_on:
+      - web
+      - api
 
   # The Backend Engine (FastAPI)
   api:
     build: ./api
-    ports:
-      - "8000:8000"
+    # DevOps Note: In production builds, we DON'T mount the source code
+    # because the Dockerfile already copied it into the image.
     environment:
-      - MONGO_URL=mongodb://db:27017/swiftlink # How the API finds the DB
+      - MONGO_URI=${MONGO_URI}
+      - API_PORT=${API_PORT}
     depends_on:
-      - db # START DB FIRST
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # The Frontend (Next.js)
   web:
-    build: ./web
-    ports:
-      - "3000:3000"
+    build: 
+      context: ./web
+      dockerfile: Dockerfile
+    # DevOps Note: Removing volumes here because they overwrite the 'standalone' build
     environment:
-      - API_URL=http://api:8000 # How the Frontend finds the API
+      - API_URL=http://api:8000
     depends_on:
-      - api # START API FIRST
+      - api
 
 volumes:
-  mongo-data: # A persistent storage "room"
+  mongo-data:
+  caddy_data:
+  caddy_config:

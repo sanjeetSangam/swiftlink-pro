@@ -17,6 +17,9 @@
     "web/**/*.{js,jsx,ts,tsx}": [
       "prettier --write"
     ],
+    "api/**/*.py": [
+      "ruff check --fix"
+    ],
     "**/*.{json,md,css}": [
       "prettier --write"
     ]

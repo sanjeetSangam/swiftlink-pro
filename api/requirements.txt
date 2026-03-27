@@ -3,7 +3,11 @@ annotated-types==0.7.0
 anyio==4.13.0
 click==8.3.1
 colorama==0.4.6
-fastapi==0.135.2
+fastapi
+uvicorn
+motor
+pydantic
+pydantic-settings
 h11==0.16.0
 idna==3.11
 pydantic==2.12.5
